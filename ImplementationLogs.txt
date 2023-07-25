@@ -1,0 +1,374 @@
+Here I will record the steps taken in this whole project to finish it:
+
+1 - setup of the project:
+
+-creation of the soltuion file with the command:
+dotnet new sln -n E-Commerce
+
+-creation of the Domains(classlibs)
+dotnet new classlib -n E-Commerce.Domain
+dotnet new classlib -n E-Commerce.Application
+dotnet new classlib -n E-Commerce.Infrastructure
+dotnet new web -n E-Commerce.WebAPI
+dotnet new xunit -n E-Commerce.Tests
+
+-adition of the projects to the soltuion
+dotnet sln add E-Commerce.Domain/E-Commerce.Domain.csproj
+dotnet sln add E-Commerce.Application/E-Commerce.Application.csproj
+dotnet sln add E-Commerce.Infrastructure/E-Commerce.Infrastructure.csproj
+dotnet sln add E-Commerce.WebAPI/E-Commerce.WebAPI.csproj
+dotnet sln add E-Commerce.Tests/E-Commerce.Tests.csproj
+
+-add references between Domains so they can see and communicate with each other:
+following this order: WebAPI -> Application -> Domain -> Infrastructure
+dotnet add E-Commerce.WebAPI/E-Commerce.WebAPI.csproj reference E-Commerce.Application/E-Commerce.Application.csproj
+dotnet add E-Commerce.Application/E-Commerce.Application.csproj reference E-Commerce.Domain/E-Commerce.Domain.csproj
+dotnet add E-Commerce.Domain/E-Commerce.Domain.csproj reference E-Commerce.Infrastructure/E-Commerce.Infrastructure.csproj
+dotnet add E-Commerce.Tests/E-Commerce.Tests.csproj reference E-Commerce.WebAPI/E-Commerce.WebAPI.csproj
+dotnet add E-Commerce.Tests/E-Commerce.Tests.csproj reference E-Commerce.Application/E-Commerce.Application.csproj
+dotnet add E-Commerce.Tests/E-Commerce.Tests.csproj reference E-Commerce.Domain/E-Commerce.Domain.csproj
+dotnet add E-Commerce.Tests/E-Commerce.Tests.csproj reference E-Commerce.Infrastructure/E-Commerce.Infrastructure.csproj
+
+-finish of th setup with the following commands:
+dotnet restore
+dotnet build
+
+-creation of gitignore file:
+dotnet new gitignore
+
+
+
+Step 1: Setup the project with DDD and TDD dependencies
+
+Create a new folder for your project and open it in Visual Studio Code. Then, follow these steps:
+
+1.1. Initialize the .NET solution:
+
+bash
+
+dotnet new sln -n ECommerceApp
+
+1.2. Create a new class library for Core domain entities and interfaces:
+
+bash
+
+dotnet new classlib -n Domain
+
+1.3. Create a new class library for Infrastructure data access:
+
+bash
+
+dotnet new classlib -n Infrastructure
+
+1.4. Create a new class library for Application services:
+
+bash
+
+dotnet new classlib -n Application
+
+1.5. Create a new class library for Unit Tests:
+
+bash
+
+dotnet new nunit -n Tests
+
+1.6. Create a new ASP.NET Core Web API project for the Presentation/API layer:
+
+bash
+
+dotnet new webapi -n API
+
+1.7. Add the projects to the solution:
+
+bash
+
+dotnet sln ECommerceApp.sln add ECommerceApp.Domain/ECommerceApp.Domain.csproj
+dotnet sln ECommerceApp.sln add ECommerceApp.Infrastructure/ECommerceApp.Infrastructure.csproj
+dotnet sln ECommerceApp.sln add ECommerceApp.Application/ECommerceApp.Application.csproj
+dotnet sln ECommerceApp.sln add ECommerceApp.Tests/ECommerceApp.Tests.csproj
+dotnet sln ECommerceApp.sln add ECommerceApp.API/ECommerceApp.API.csproj
+
+Step 2: Setup the Entity Framework with no entities
+
+2.1. Install Entity Framework Core packages in the Infrastructure project:
+
+bash
+
+cd ECommerceApp.Infrastructure
+dotnet add package Microsoft.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
+2.2. Create the database context in the Infrastructure project:
+Create a file named AppDbContext.cs inside the ECommerceApp.Infrastructure folder:
+
+csharp
+
+using Microsoft.EntityFrameworkCore;
+
+namespace ECommerceApp.Infrastructure
+{
+    public class AppDbContext : DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+        
+        // Add DbSet properties for your entities (will be done later)
+    }
+}
+
+Step 3: Create the migrations
+
+3.1. Open a terminal in Visual Studio Code and run the following command to create the initial migration:
+
+bash
+
+cd ECommerceApp.Infrastructure
+dotnet ef migrations add InitialCreate
+
+Step 4: Test if the app is communicating with the local database
+
+4.1. Before running the application, set up a local SQL Server database, and update the connection string in the AppDbContext.cs.
+
+4.2. Apply the migrations to the database:
+
+bash
+
+dotnet ef database update
+
+
+Step 5: Implement the User entity
+
+5.1. Create a folder named Entities inside the ECommerceApp.Domain project.
+
+5.2. Create a file named User.cs inside the Entities folder:
+
+csharp
+
+namespace ECommerceApp.Domain.Entities
+{
+    public class User
+    {
+        // Properties and methods for the User entity
+    }
+}
+
+Step 6: Implement the Products entity
+
+6.1. Create a file named Product.cs inside the Entities folder:
+
+csharp
+
+namespace ECommerceApp.Domain.Entities
+{
+    public class Product
+    {
+        // Properties and methods for the Product entity
+    }
+}
+
+Step 7: Implement the Application Layer
+
+7.1. Create a folder named Services inside the ECommerceApp.Application project.
+
+7.2. Create a file named UserService.cs inside the Services folder:
+
+csharp
+
+using ECommerceApp.Domain.Entities;
+
+namespace ECommerceApp.Application.Services
+{
+    public class UserService
+    {
+        // Implement methods to handle user-related operations
+    }
+}
+
+Step 8: Implement the Presentation Layer (API)
+
+8.1. Create a folder named Controllers inside the ECommerceApp.API project.
+
+8.2. Create a file named UserController.cs inside the Controllers folder:
+
+csharp
+
+using ECommerceApp.Application.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ECommerceApp.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UserController : ControllerBase
+    {
+        private readonly UserService _userService;
+
+        public UserController(UserService userService)
+        {
+            _userService = userService;
+        }
+
+        // Implement API endpoints to handle user-related operations
+    }
+}
+
+Step 9: Connect the Layers
+
+9.1. Reference the Application layer from the Presentation layer:
+In the terminal, navigate to the root "ECommerceApp" folder and run the following command:
+
+bash
+
+cd ECommerceApp.API
+dotnet add reference ../ECommerceApp.Application/ECommerceApp.Application.csproj
+
+9.2. Reference the Domain layer from the Infrastructure layer:
+In the terminal, navigate to the root "ECommerceApp" folder and run the following command:
+
+bash
+
+cd ECommerceApp.Infrastructure
+dotnet add reference ../ECommerceApp.Domain/ECommerceApp.Domain.csproj
+
+9.3. Reference the Application layer from the Tests project:
+In the terminal, navigate to the root "ECommerceApp" folder and run the following command:
+
+bash
+
+cd ECommerceApp.Tests
+dotnet add reference ../ECommerceApp.Application/ECommerceApp.Application.csproj
+
+Step 10: Implement Authentication and Login System with Google
+
+10.1. Create a Google API Project and Configure OAuth Credentials:
+
+    Go to the Google Developers Console (https://console.developers.google.com/).
+    Create a new project.
+    In the project settings, navigate to the "Credentials" tab.
+    Click on "Create credentials" and choose "OAuth client ID."
+    Select "Web application" as the application type.
+    Enter the authorized redirect URIs for your application (e.g., "https://localhost:5001/signin-google" for local development).
+    Save the client ID and client secret for later use.
+
+10.2. Install Required NuGet Packages:
+In the terminal, navigate to the root "ECommerceApp" folder and run the following commands:
+
+bash
+
+cd ECommerceApp.API
+dotnet add package Microsoft.AspNetCore.Authentication.Google
+
+10.3. Configure Google Authentication in Startup.cs:
+Open the Startup.cs file of the ECommerceApp.API project, and in the ConfigureServices method, add the following configuration for Google authentication:
+
+csharp
+
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+// Other using statements
+
+public void ConfigureServices(IServiceCollection services)
+{
+    // Other configurations
+
+    services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie()
+    .AddGoogle(options =>
+    {
+        options.ClientId = "YOUR_GOOGLE_CLIENT_ID";
+        options.ClientSecret = "YOUR_GOOGLE_CLIENT_SECRET";
+    });
+
+    // Other configurations
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    // Other configurations
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    // Other configurations
+}
+
+Replace "YOUR_GOOGLE_CLIENT_ID" and "YOUR_GOOGLE_CLIENT_SECRET" with the client ID and client secret obtained from the Google API Project in Step 10.1.
+
+10.4. Create a Controller for Handling Google Login:
+
+Create a new file named AuthController.cs inside the Controllers folder of the ECommerceApp.API project:
+
+csharp
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ECommerceApp.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
+    {
+        [HttpGet("google")]
+        public IActionResult GoogleLogin()
+        {
+            var authenticationProperties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Action(nameof(GoogleCallback)),
+            };
+
+            return Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet("google-callback")]
+        public IActionResult GoogleCallback()
+        {
+            // Handle the callback after successful Google authentication
+            return Ok("Google login successful!");
+        }
+    }
+}
+
+10.5. Test the Google Login:
+
+    Run the API project (ECommerceApp.API).
+    Access https://localhost:5001/api/auth/google in your browser.
+    You'll be redirected to Google's login page. Log in with your Google account and grant the necessary permissions.
+    After successful login, you'll be redirected to the GoogleCallback endpoint, and you should see the "Google login successful!" message.
+
+
+    Step 11: Implement a Delivery Calculator Service
+
+11.1. If the Delivery Calculator is part of the Application logic, create a new file named DeliveryCalculatorService.cs inside the Services folder in the ECommerceApp.Application project:
+
+csharp
+
+namespace ECommerceApp.Application.Services
+{
+    public class DeliveryCalculatorService
+    {
+        // Implementation of the delivery cost calculator logic
+    }
+}
+
+Here are some popular delivery provider APIs you can consider:
+
+    FedEx Web Services API:
+    API Documentation: https://www.fedex.com/en-us/developer/web-services.html
+
+    UPS Developer Kit API:
+    API Documentation: https://www.ups.com/upsdeveloperkit
+
+    DHL Developer API:
+    API Documentation: https://developer.dhl/global-apis
+
+    USPS Web Tools API:
+    API Documentation: https://www.usps.com/business/web-tools-apis/welcome.htm
+
+    Canada Post API:
+    API Documentation: https://www.canadapost.ca/cpo/mc/business/productsservices/developers/services/overview.jsf
