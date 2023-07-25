@@ -1,0 +1,17 @@
+Problem with name convention using .Infrastructure in the names and .app (file ignored in the .gitignore file)
+
+#############################################
+
+Problem on setting up the EF context in the Program.cs file in the API. solved by the following code:
+
+var configuration = builder.Configuration;
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(configuration.GetConnectionString("ECommerceAppDatabase")));
+
+var app = builder.Build();
+
+############################################
+
+Problem setting up the communication with the database, for some reason the certificate was not being truste
+the problem was solved with the addition of TrustServerCertificate=true; in the end of the string
