@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Domain;
 
 namespace Infrastructure
 {
@@ -8,8 +9,6 @@ namespace Infrastructure
         {
         }
 
-        // Add DbSet properties here for your entities (when you create them later)
-        // For example:
-        // public DbSet<Product> Products { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
