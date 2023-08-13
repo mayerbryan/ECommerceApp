@@ -256,6 +256,10 @@ In the terminal, navigate to the root "ECommerceApp" folder and run the followin
 
 bash
 
+
+
+
+
 cd ECommerceApp.API
 dotnet add package Microsoft.AspNetCore.Authentication.Google
 
